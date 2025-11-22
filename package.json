@@ -1,0 +1,47 @@
+{
+    "name": "auth-methods-for-convex",
+    "version": "1.0.0",
+    "description": "Authentication wrapper functions for Convex queries and mutations with ESLint rules",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./eslint": {
+            "default": "./eslint/index.js"
+        }
+    },
+    "files": [
+        "dist",
+        "eslint",
+        "README.md"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "test": "vitest",
+        "test:run": "vitest run",
+        "lint": "eslint . --ext .ts,.js",
+        "type-check": "tsc --noEmit"
+    },
+    "keywords": [
+        "convex",
+        "authentication",
+        "eslint",
+        "typescript"
+    ],
+    "author": "",
+    "license": "MIT",
+    "peerDependencies": {
+        "convex": "^1.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20",
+        "@typescript-eslint/eslint-plugin": "^8.46.2",
+        "@typescript-eslint/parser": "^8.46.2",
+        "eslint": "^9",
+        "typescript": "^5",
+        "vitest": "^4.0.3"
+    }
+}

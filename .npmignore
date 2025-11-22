@@ -1,0 +1,16 @@
+src/
+eslint/*.test.js
+node_modules/
+*.test.ts
+*.test.js
+.vscode/
+.idea/
+*.log
+.DS_Store
+coverage/
+test-results/
+playwright-report/
+tsconfig.json
+vitest.config.*
+eslint.config.*
+
