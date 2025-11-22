@@ -23,7 +23,8 @@
         "test": "vitest",
         "test:run": "vitest run",
         "lint": "eslint . --ext .ts,.js",
-        "type-check": "tsc --noEmit"
+        "type-check": "tsc --noEmit",
+        "prepublishOnly": "npm run build && npm run test:run"
     },
     "keywords": [
         "convex",
