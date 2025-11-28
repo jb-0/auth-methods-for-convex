@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createAuthenticatedMethods } from './index';
 import type { PropertyValidators } from 'convex/values';
+import type { QueryBuilder, MutationBuilder } from 'convex/server';
 
 // Mock types for Convex context
 type MockQueryCtx = {
@@ -39,9 +40,9 @@ describe('createAuthenticatedMethods', () => {
             };
         });
 
-        const methods = createAuthenticatedMethods<MockQueryCtx, MockMutationCtx>({
-            query: mockQuery,
-            mutation: mockMutation,
+        const methods = createAuthenticatedMethods<MockQueryCtx, MockMutationCtx, any, 'public'>({
+            query: mockQuery as any as QueryBuilder<any, 'public'>,
+            mutation: mockMutation as any as MutationBuilder<any, 'public'>,
         });
 
         authenticatedQuery = methods.authenticatedQuery;

@@ -1,4 +1,5 @@
-import { PropertyValidators, Infer } from 'convex/values';
+import { PropertyValidators, Infer, Validator } from 'convex/values';
+import type { QueryBuilder, MutationBuilder, GenericQueryCtx, GenericMutationCtx, ArgsArrayForOptionalValidator, RegisteredQuery, RegisteredMutation } from 'convex/server';
 
 /**
  * Utility type to infer argument types from PropertyValidators
@@ -27,9 +28,11 @@ export type InferArgs<Args extends PropertyValidators> = {
 export function createAuthenticatedMethods<
     QueryCtx extends { auth: { getUserIdentity(): Promise<{ subject: string } | null> } },
     MutationCtx extends { auth: { getUserIdentity(): Promise<{ subject: string } | null> } },
+    DataModel extends Record<string, any> = Record<string, any>,
+    Visibility extends 'public' | 'internal' = 'public',
 >(options: {
-    query: any;
-    mutation: any;
+    query: QueryBuilder<DataModel, Visibility>;
+    mutation: MutationBuilder<DataModel, Visibility>;
 }) {
     const { query, mutation } = options;
 
@@ -38,25 +41,27 @@ export function createAuthenticatedMethods<
      */
     const authenticatedQuery = <
         Args extends PropertyValidators,
-        Return = unknown,
+        Return,
     >(definition: {
         args: Args;
+        returns?: Validator<Return, any, any>;
         handler: (
             ctx: QueryCtx & { identity: { subject: string } },
             args: InferArgs<Args>
         ) => Promise<Return>;
-    }) => {
+    }): RegisteredQuery<Visibility, InferArgs<Args>, Promise<Return>> => {
         return query({
             args: definition.args,
-            handler: async (ctx: QueryCtx, ...args: any[]) => {
+            returns: definition.returns,
+            handler: async (ctx: GenericQueryCtx<DataModel> & { auth: { getUserIdentity(): Promise<{ subject: string } | null> } }, ...args: ArgsArrayForOptionalValidator<Args>) => {
                 const identity = await ctx.auth.getUserIdentity();
                 if (!identity) {
                     throw new Error('Not authenticated');
                 }
                 return definition.handler(
-                    { ...ctx, identity },
+                    { ...ctx, identity } as unknown as QueryCtx & { identity: { subject: string } },
                     args[0] as InferArgs<Args>
-                );
+                ) as any;
             },
         });
     };
@@ -66,25 +71,27 @@ export function createAuthenticatedMethods<
      */
     const authenticatedMutation = <
         Args extends PropertyValidators,
-        Return = unknown,
+        Return,
     >(definition: {
         args: Args;
+        returns?: Validator<Return, any, any>;
         handler: (
             ctx: MutationCtx & { identity: { subject: string } },
             args: InferArgs<Args>
         ) => Promise<Return>;
-    }) => {
+    }): RegisteredMutation<Visibility, InferArgs<Args>, Promise<Return>> => {
         return mutation({
             args: definition.args,
-            handler: async (ctx: MutationCtx, ...args: any[]) => {
+            returns: definition.returns,
+            handler: async (ctx: GenericMutationCtx<DataModel> & { auth: { getUserIdentity(): Promise<{ subject: string } | null> } }, ...args: ArgsArrayForOptionalValidator<Args>) => {
                 const identity = await ctx.auth.getUserIdentity();
                 if (!identity) {
                     throw new Error('Not authenticated');
                 }
                 return definition.handler(
-                    { ...ctx, identity },
+                    { ...ctx, identity } as unknown as MutationCtx & { identity: { subject: string } },
                     args[0] as InferArgs<Args>
-                );
+                ) as any;
             },
         });
     };
